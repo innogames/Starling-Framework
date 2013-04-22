@@ -73,7 +73,7 @@ package starling.display
         public function advanceTime(passedTime:Number):void
         {
             mEnterFrameEvent.reset(Event.ENTER_FRAME, false, passedTime);
-            broadcastEvent(mEnterFrameEvent);
+			dispatchEvent(mEnterFrameEvent);
         }
 
         /** Returns the object that is found topmost beneath a point in stage coordinates, or  

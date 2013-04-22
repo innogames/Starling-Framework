@@ -11,6 +11,7 @@
 package starling.events
 {
     import flash.utils.Dictionary;
+	import starling.core.Starling;
     
     import starling.core.starling_internal;
     import starling.display.DisplayObject;
@@ -49,6 +50,11 @@ package starling.events
         /** Registers an event listener at a certain object. */
         public function addEventListener(type:String, listener:Function):void
         {
+			if (type == Event.ENTER_FRAME && this != Starling.current.stage)
+			{
+				Starling.current.stage.addEventListener(type, listener);
+				return;
+			}
             if (mEventListeners == null)
                 mEventListeners = new Dictionary();
             
@@ -57,11 +63,18 @@ package starling.events
                 mEventListeners[type] = new <Function>[listener];
             else if (listeners.indexOf(listener) == -1) // check for duplicates
                 listeners.push(listener);
+			
+			
         }
         
         /** Removes an event listener from the object. */
         public function removeEventListener(type:String, listener:Function):void
         {
+			if (type == Event.ENTER_FRAME && this != Starling.current.stage)
+			{
+				Starling.current.stage.removeEventListener(type, listener);
+				return;
+			}
             if (mEventListeners)
             {
                 var listeners:Vector.<Function> = mEventListeners[type] as Vector.<Function>;
@@ -74,6 +87,7 @@ package starling.events
                         if (listeners[i] != listener) remainingListeners.push(listeners[i]);
                     
                     mEventListeners[type] = remainingListeners;
+					
                 }
             }
         }
