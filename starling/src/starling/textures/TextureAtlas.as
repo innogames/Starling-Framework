@@ -140,6 +140,16 @@ package starling.textures
             result.sort(Array.CASEINSENSITIVE);
             return result;
         }
+		
+		/** Retrieves a subtexture by name. Returns <code>null</code> if it is not found. */
+        public function getTextureByName(name:String):Texture
+        {
+            var region:Rectangle = mTextureRegions[name];
+            
+            if (region == null) return null;
+            else return Texture.fromTexture(mAtlasTexture, region, mTextureFrames[name]);
+        }
+		
         
         /** Returns the region rectangle associated with a specific name. */
         public function getRegion(name:String):Rectangle

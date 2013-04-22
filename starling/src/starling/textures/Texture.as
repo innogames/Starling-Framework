@@ -124,7 +124,9 @@ package starling.textures
          *  Beware: you must not dispose 'data' if Starling should handle a lost device context. */
         public static function fromBitmapData(data:BitmapData, generateMipMaps:Boolean=true,
                                               optimizeForRenderToTexture:Boolean=false,
-                                              scale:Number=1):Texture
+                                              scale:Number = 1,
+											  autoHandleLostContext:Boolean = true //<-- add parameter autoHandleLostContext and set true as default value; starling will work like before if its not set to false
+											  ):Texture
         {
             var origWidth:int   = data.width;
             var origHeight:int  = data.height;
@@ -151,7 +153,7 @@ package starling.textures
                 nativeTexture, Context3DTextureFormat.BGRA, legalWidth, legalHeight,
                 generateMipMaps, true, optimizeForRenderToTexture, scale);
             
-            if (Starling.handleLostContext)
+            if (Starling.handleLostContext && autoHandleLostContext)//<-- add "&& autoHandleLostContext"; set autoHandleLostContext to false if bitmapData should be disposed by starling
                 concreteTexture.restoreOnLostContext(data);
             else if (potData)
                 potData.dispose();
@@ -275,6 +277,53 @@ package starling.textures
             subTexture.mFrame = frame;
             return subTexture;
         }
+		/** Converts a native texture into a starling texture**/
+		public static function fromNativeTexture(nativeTexture: flash.display3D.textures.TextureBase, width: int, height: int, mipMapping: Boolean = false): Texture {
+			if (mipMapping) throw new Error("Sorry - didn't implement, but I know you need it. You know where to do that :)");
+			var concreteTexture:ConcreteTexture = new ConcreteTexture(nativeTexture, Context3DTextureFormat.BGRA, 
+                width,height, mipMapping, false, true, 1);
+            return concreteTexture;
+		}
+		
+		
+		/**
+		 * restore the texture with new bitmapData; helpfull for own context loss handling
+		 * @param	data
+		 */
+		public function restoreWithBitmapData(data:BitmapData):void
+		{
+			if(this is ConcreteTexture)
+				(this as ConcreteTexture).restoreBitmapDataTexture(data);
+			else if (this is SubTexture)
+				((this as SubTexture).parent as ConcreteTexture).restoreBitmapDataTexture(data);
+		}
+		/**
+		 * restores a rendertexture with width, height and color; helpfull for own context loss handling
+		 * @param	data
+		 */
+		public function restoreRenderTexture(textureBase:TextureBase):void
+		{
+			if(this is ConcreteTexture)
+				(this as ConcreteTexture).restoreWithNativeTexture(textureBase);
+			else if (this is SubTexture)
+				((this as SubTexture).parent as ConcreteTexture).restoreWithNativeTexture(textureBase);
+		}
+		/** Restores the texture with atf data**/
+		public function restoreWithATFData(bytes:ByteArray):void 
+		{
+			var context:Context3D = Starling.context;
+            if (context == null) throw new MissingContextError();
+			var atfData:AtfData = new AtfData(bytes);
+            var nativeTexture:flash.display3D.textures.Texture = context.createTexture(
+                    atfData.width, atfData.height, atfData.format, false);
+            uploadAtfData(nativeTexture, bytes);
+			if(this is ConcreteTexture)
+				(this as ConcreteTexture).restoreWithNativeTexture(nativeTexture);
+			else if (this is SubTexture)
+				((this as SubTexture).parent as ConcreteTexture).restoreWithNativeTexture(nativeTexture);
+		}
+		
+		
         
         /** Converts texture coordinates and vertex positions of raw vertex data into the format 
          *  required for rendering. */

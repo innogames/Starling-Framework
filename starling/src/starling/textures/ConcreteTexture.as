@@ -69,6 +69,23 @@ package starling.textures
             
             mData = data;
         }
+		/**
+		 * restores the concrete texture with a valid bitmapdata; uploads it directly to the gpu
+		 * @param	data
+		 */
+		internal function restoreBitmapDataTexture(data:BitmapData):void 
+		{
+			mData = data;
+			onContextCreated(null);
+		}
+		/**
+		 * restores the concrete texture with a native Texture
+		 * @param	data
+		 */
+		internal function restoreWithNativeTexture(textureBase:TextureBase):void 
+		{
+			mBase = textureBase;
+		}
         
         private function onContextCreated(event:Event):void
         {

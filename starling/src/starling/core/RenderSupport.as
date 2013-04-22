@@ -47,6 +47,7 @@ package starling.core
         private var mMatrixStack:Vector.<Matrix>;
         private var mMatrixStackSize:int;
         
+		private var mCustomDrawCount:int;
         private var mDrawCount:int;
         private var mBlendMode:String;
 
@@ -442,6 +443,14 @@ package starling.core
         
         /** Indicates the number of stage3D draw calls. */
         public function get drawCount():int { return mDrawCount; }
+		/** raise the custom drawcall counter**/
+		public function raiseCustomDrawCount():void{
+			mCustomDrawCount++;
+		}
+		/** reset the custom drawcall counter**/
+		public function resetCustomDrawCount():void{
+			mCustomDrawCount = 0;
+		}
         
     }
 }

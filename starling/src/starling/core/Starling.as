@@ -799,6 +799,14 @@ package starling.core
                 removeEventListener(starling.events.Event.ROOT_CREATED, onRootCreated);
             }
         }
+		
+		public function raiseCustomDrawCount():void{
+			mSupport.raiseCustomDrawCount();
+		}
+		
+		public function resetCustomDrawCount():void {
+			mSupport.resetCustomDrawCount();
+		}
         
         /** The Starling stage object, which is the root of the display tree that is rendered. */
         public function get stage():Stage
