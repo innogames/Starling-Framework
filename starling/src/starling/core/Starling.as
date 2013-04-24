@@ -37,6 +37,7 @@ package starling.core
     import flash.utils.Dictionary;
     import flash.utils.getTimer;
     import flash.utils.setTimeout;
+	import starling.utils.VertexData;
     
     import starling.animation.Juggler;
     import starling.display.DisplayObject;
@@ -360,6 +361,7 @@ package starling.core
          *  and <code>render()</code>. */ 
         public function nextFrame():void
         {
+			VertexData.vertexDataInDomainMemory = null;
             var now:Number = getTimer() / 1000.0;
             var passedTime:Number = now - mLastFrameTimestamp;
             mLastFrameTimestamp = now;
