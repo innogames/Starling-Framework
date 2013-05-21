@@ -138,7 +138,13 @@ package starling.animation
         {
             animate("alpha", alpha);
         }
-        
+
+        /** The tween progress from 0 to 1 */
+        public function get ratio():Number
+        {
+            return mCurrentTime / mTotalTime;
+        }   
+
         /** @inheritDoc */
         public function advanceTime(time:Number):void
         {
