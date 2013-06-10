@@ -73,10 +73,11 @@ package starling.text
         private var mBaseline:Number;
         private var mHelperImage:Image;
         private var mCharLocationPool:Vector.<CharLocation>;
+        private var mIsHdTexture:Boolean;
         
         /** Creates a bitmap font by parsing an XML file and uses the specified texture. 
          *  If you don't pass any data, the "mini" font will be created. */
-        public function BitmapFont(texture:Texture=null, fontXml:XML=null)
+        public function BitmapFont(texture:Texture=null, fontXml:XML=null, isHdTexture:Boolean=true)
         {
             // if no texture is passed in, we create the minimal, embedded font
             if (texture == null && fontXml == null)
@@ -91,6 +92,7 @@ package starling.text
             mChars = new Dictionary();
             mHelperImage = new Image(texture);
             mCharLocationPool = new <CharLocation>[];
+            mIsHdTexture = isHdTexture;
             
             if (fontXml) parseFontXml(fontXml);
         }
@@ -104,7 +106,7 @@ package starling.text
         
         private function parseFontXml(fontXml:XML):void
         {
-            var scale:Number = mTexture.scale;
+            var scale:Number = mIsHdTexture ? mTexture.scale : mTexture.scale * 2;
             var frame:Rectangle = mTexture.frame;
             
             mName = fontXml.info.attribute("face");
