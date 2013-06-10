@@ -73,14 +73,12 @@ package starling.text
         private var mBaseline:Number;
         private var mHelperImage:Image;
         private var mCharLocationPool:Vector.<CharLocation>;
-		private var mIsHDTexture:Boolean;
         
         /** Creates a bitmap font by parsing an XML file and uses the specified texture. 
          *  If you don't pass any data, the "mini" font will be created. */
-        public function BitmapFont(texture:Texture=null, fontXml:XML=null, isHDTexture:Boolean=true)
+        public function BitmapFont(texture:Texture=null, fontXml:XML=null)
         {
-            mIsHDTexture = isHDTexture;
-			// if no texture is passed in, we create the minimal, embedded font
+            // if no texture is passed in, we create the minimal, embedded font
             if (texture == null && fontXml == null)
             {
                 texture = MiniBitmapFont.texture;
@@ -136,13 +134,6 @@ package starling.text
                 region.width  = parseFloat(charElement.attribute("width")) / scale;
                 region.height = parseFloat(charElement.attribute("height")) / scale;
                 
-				if(!mIsHDTexture)
-				{
-					region.x *= .5;
-					region.y *= .5;
-					region.width *= .5;
-					region.height *= .5;
-				}
                 var texture:Texture = Texture.fromTexture(mTexture, region);
                 var bitmapChar:BitmapChar = new BitmapChar(id, texture, xOffset, yOffset, xAdvance); 
                 addChar(id, bitmapChar);
@@ -152,7 +143,7 @@ package starling.text
             {
                 var first:int = parseInt(kerningElement.attribute("first"));
                 var second:int = parseInt(kerningElement.attribute("second"));
-                var amount:Number = parseFloat(kerningElement.attribute("amount")) / scale * (mIsHDTexture ? 1 : .5);
+                var amount:Number = parseFloat(kerningElement.attribute("amount")) / scale;
                 if (second in mChars) getChar(second).addKerning(first, amount);
             }
         }
@@ -181,14 +172,13 @@ package starling.text
             var numChars:int = charLocations.length;
             var sprite:Sprite = new Sprite();
             
-			var scale: Number = mIsHDTexture ? 1 : 2;
             for (var i:int=0; i<numChars; ++i)
             {
                 var charLocation:CharLocation = charLocations[i];
                 var char:Image = charLocation.char.createImage();
                 char.x = charLocation.x;
                 char.y = charLocation.y;
-                char.scaleX = char.scaleY = charLocation.scale * scale;
+                char.scaleX = char.scaleY = charLocation.scale;
                 char.color = color;
                 sprite.addChild(char);
             }
@@ -211,7 +201,6 @@ package starling.text
             if (numChars > 8192)
                 throw new ArgumentError("Bitmap Font text is limited to 8192 characters.");
 
-			var scale: Number = mIsHDTexture ? 1 : 2;
             for (var i:int=0; i<numChars; ++i)
             {
                 var charLocation:CharLocation = charLocations[i];
@@ -219,7 +208,7 @@ package starling.text
                 mHelperImage.readjustSize();
                 mHelperImage.x = charLocation.x;
                 mHelperImage.y = charLocation.y;
-                mHelperImage.scaleX = mHelperImage.scaleY = charLocation.scale * scale;
+                mHelperImage.scaleX = mHelperImage.scaleY = charLocation.scale;
                 quadBatch.addImage(mHelperImage);
             }
         }
@@ -391,18 +380,18 @@ package starling.text
         public function get name():String { return mName; }
         
         /** The native size of the font. */
-        public function get size():Number { return mSize * (mIsHDTexture? 1 : .5); }
+        public function get size():Number { return mSize; }
         
         /** The height of one line in pixels. */
-        public function get lineHeight():Number { return mLineHeight * (mIsHDTexture? 1 : .5); }
-        public function set lineHeight(value:Number):void { mLineHeight = value / (mIsHDTexture? 1 : .5); }
+        public function get lineHeight():Number { return mLineHeight; }
+        public function set lineHeight(value:Number):void { mLineHeight = value; }
         
         /** The smoothing filter that is used for the texture. */ 
         public function get smoothing():String { return mHelperImage.smoothing; }
         public function set smoothing(value:String):void { mHelperImage.smoothing = value; } 
         
         /** The baseline of the font. */
-        public function get baseline():Number { return mBaseline * (mIsHDTexture? 1 : .5); }
+        public function get baseline():Number { return mBaseline; }
     }
 }
 
