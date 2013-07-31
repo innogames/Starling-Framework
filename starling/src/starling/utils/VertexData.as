@@ -89,7 +89,7 @@ package starling.utils
 			
 			var clone:VertexData = new VertexData(0, mPremultipliedAlpha);
 			clone.mNumVertices = numVertices;
-			//clone.mRawData = mRawData.slice(vertexID * ELEMENTS_PER_VERTEX, 
+			//clone.mRawData = mRawData.slice(vertexID * ELEMENTS_PER_VERTEX,
 			//numVertices * ELEMENTS_PER_VERTEX);
 			//clone.mRawData.fixed = true;
 			clone.mRawData.position = 0;
@@ -141,9 +141,9 @@ package starling.utils
 			mNumVertices += data.numVertices;
 			//mRawData.fixed = true;
 		}
-        
+
         // functions
-        
+
         /** Updates the position values of a vertex. */
         public function setPosition(vertexID:int, x:Number, y:Number):void
         {
@@ -154,9 +154,10 @@ package starling.utils
             //mRawData[offset] = x;
             //mRawData[int(offset+1)] = y;
         }
-        
+
         /** Returns the position of a vertex. */
-        public function getPosition(vertexID:int, position:Point):void
+		[Inline]
+        final public function getPosition(vertexID:int, position:Point):void
         {
             var offset:int = getOffset(vertexID) + POSITION_OFFSET;
 			mRawData.position = offset << 2;
@@ -166,9 +167,9 @@ package starling.utils
             //position.y = mRawData[int(offset+1)];
         }
 		
-        /** Updates the RGB color values of a vertex. */ 
+        /** Updates the RGB color values of a vertex. */
         public function setColor(vertexID:int, color:uint):void
-        {   
+        {
 			switchDomainMemory()
 			__setColor(vertexID, color);
 			/*
@@ -209,7 +210,7 @@ package starling.utils
 		}
 		
         /** Returns the RGB color of a vertex (no alpha). */
-        public function getColor(vertexID:int):uint
+        final public function getColor(vertexID:int):uint
         {
 			switchDomainMemory()
 			return __getColor(vertexID);
@@ -225,7 +226,7 @@ package starling.utils
 			{
 				divisor = 1.0;
 			}
-            
+
             if (divisor == 0) return 0;
             else
             {
@@ -233,13 +234,13 @@ package starling.utils
                 var red:Number   = mRawData.readFloat() / divisor;
                 var green:Number = mRawData.readFloat() / divisor;
                 var blue:Number  = mRawData.readFloat() / divisor;
-                
+
                 return (int(red*255) << 16) | (int(green*255) << 8) | int(blue*255);
             }*/
         }
 		
 		/** Returns the RGB color of a vertex (no alpha). */
-		private function __getColor(vertexID:int):uint
+		final private function __getColor(vertexID:int):uint
 		{
 			var offset:int = getOffset(vertexID) + COLOR_OFFSET;
 			//checkDomainMemory();
@@ -263,7 +264,7 @@ package starling.utils
 		}
 		
         /** Updates the alpha value of a vertex (range 0-1). */
-        public function setAlpha(vertexID:int, alpha:Number):void
+        final public function setAlpha(vertexID:int, alpha:Number):void
         {
             var offset:int = getOffset(vertexID) + COLOR_OFFSET + 3;
 			
@@ -281,9 +282,9 @@ package starling.utils
 				mRawData.writeFloat(alpha);
             }
         }
-        
+
 		/** Updates the alpha value of a vertex (range 0-1). */
-		private function __setAlpha(vertexID:int, alpha:Number):void
+		final private function __setAlpha(vertexID:int, alpha:Number):void
 		{
 			var offset:int = getOffset(vertexID) + COLOR_OFFSET + 3;
 			offset <<= 2;
@@ -303,7 +304,7 @@ package starling.utils
 		}
 		
 		/** Returns the alpha value of a vertex in the range 0-1. */
-		public function getAlpha(vertexID:int):Number
+		final public function getAlpha(vertexID:int):Number
         {
             var offset:int = getOffset(vertexID) + COLOR_OFFSET + 3;
 			mRawData.position = offset << 2;
@@ -311,7 +312,7 @@ package starling.utils
         }
 		
 		/** Returns the alpha value of a vertex in the range 0-1. */
-		private function __getAlpha(vertexID:int):Number
+		final private function __getAlpha(vertexID:int):Number
 		{
 			var offset:int = getOffset(vertexID) + COLOR_OFFSET + 3;
 			//checkDomainMemory();
@@ -319,7 +320,7 @@ package starling.utils
 		}
 		
 		/** Updates the texture coordinates of a vertex (range 0-1). */
-		public function setTexCoords(vertexID:int, u:Number, v:Number):void
+		final public function setTexCoords(vertexID:int, u:Number, v:Number):void
 		{
 			var offset:int = getOffset(vertexID) + TEXCOORD_OFFSET;
 			switchDomainMemory()
@@ -329,7 +330,7 @@ package starling.utils
 		}
 		
 		/** Returns the texture coordinates of a vertex in the range 0-1. */
-		public function getTexCoords(vertexID:int, texCoords:Point):void
+		final public function getTexCoords(vertexID:int, texCoords:Point):void
 		{
 			var offset:int = getOffset(vertexID) + TEXCOORD_OFFSET;
 			switchDomainMemory()
@@ -341,7 +342,7 @@ package starling.utils
 		// utility functions
 		
 		/** Translate the position of a vertex by a certain offset. */
-		 public function translateVertex(vertexID:int, deltaX:Number, deltaY:Number):void
+		final public function translateVertex(vertexID:int, deltaX:Number, deltaY:Number):void
         {
             var offset:int = getOffset(vertexID) + POSITION_OFFSET;
 			offset <<= 2;
@@ -355,7 +356,7 @@ package starling.utils
 		
 		/** Transforms the position of subsequent vertices by multiplication with a
 		 *  transformation matrix. */
-		public function transformVertex(vertexID:int, matrix:Matrix, numVertices:int = 1):void
+		final public function transformVertex(vertexID:int, matrix:Matrix, numVertices:int = 1):void
 		{
 			var offset:int = getOffset(vertexID) + POSITION_OFFSET;
 			switchDomainMemory()
@@ -377,7 +378,7 @@ package starling.utils
 		}
 		
 		/** Sets all vertices of the object to the same color values. */
-		public function setUniformColor(color:uint):void
+		final public function setUniformColor(color:uint):void
 		{
 			switchDomainMemory()
 			for (var i:int = 0; i < mNumVertices; ++i)
@@ -385,7 +386,7 @@ package starling.utils
 		}
 		
 		/** Sets all vertices of the object to the same alpha values. */
-		public function setUniformAlpha(alpha:Number):void
+		final public function setUniformAlpha(alpha:Number):void
 		{
 			switchDomainMemory()
 			for (var i:int = 0; i < mNumVertices; ++i)
@@ -393,7 +394,7 @@ package starling.utils
 		}
 		
 		/** Multiplies the alpha value of subsequent vertices with a certain delta. */
-		public function scaleAlpha(vertexID:int, alpha:Number, numVertices:int = 1):void
+		final public function scaleAlpha(vertexID:int, alpha:Number, numVertices:int = 1):void
 		{
 			if (alpha == 1.0)
 				return;
@@ -431,7 +432,7 @@ package starling.utils
 		 *  If you pass a 'resultRect', the result will be stored in this rectangle
 		 *  instead of creating a new object. To use all vertices for the calculation, set
 		 *  'numVertices' to '-1'. */
-		public function getBounds(transformationMatrix:Matrix=null, 
+		public function getBounds(transformationMatrix:Matrix=null,
                                   vertexID:int=0, numVertices:int=-1,
                                   resultRect:Rectangle = null):Rectangle
 		{
@@ -535,14 +536,23 @@ package starling.utils
 			mPremultipliedAlpha = value;
 		}
 		
+		public function dispose():void
+		{
+			if (mRawData)
+			{
+				mRawData.clear();
+				mRawData = null;
+			}
+		}
+		
 		/** Indicates if the rgb values are stored premultiplied with the alpha value. */
-		public function get premultipliedAlpha():Boolean
+		final public function get premultipliedAlpha():Boolean
 		{
 			return mPremultipliedAlpha;
 		}
 		
 		/** The total number of vertices. */
-		public function get numVertices():int
+		final public function get numVertices():int
 		{
 			return mNumVertices;
 		}
@@ -579,7 +589,7 @@ package starling.utils
 			//mRawData.fixed = true;
 		}
 		[Inline]
-		private final function switchDomainMemory():void 
+		private final function switchDomainMemory():void
 		{
 			if (vertexDataInDomainMemory != this)
 			{
@@ -589,7 +599,7 @@ package starling.utils
 		}
 		
 		/** The raw vertex data; not a copy! */
-		public function get rawData():ByteArray
+		final public function get rawData():ByteArray
 		{
 			return mRawData;
 		}
