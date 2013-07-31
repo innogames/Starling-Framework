@@ -540,6 +540,11 @@ package starling.utils
 		{
 			if (mRawData)
 			{
+				if (vertexDataInDomainMemory == this)
+				{
+					vertexDataInDomainMemory = null;
+					ApplicationDomain.currentDomain.domainMemory = null;
+				}
 				mRawData.clear();
 				mRawData = null;
 			}
