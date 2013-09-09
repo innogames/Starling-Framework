@@ -279,7 +279,6 @@ package starling.textures
         }
 		/** Converts a native texture into a starling texture**/
 		public static function fromNativeTexture(nativeTexture: flash.display3D.textures.TextureBase, width: int, height: int, mipMapping: Boolean = false): Texture {
-			if (mipMapping) throw new Error("Sorry - didn't implement, but I know you need it. You know where to do that :)");
 			var concreteTexture:ConcreteTexture = new ConcreteTexture(nativeTexture, Context3DTextureFormat.BGRA,
                 width,height, mipMapping, false, true, 1);
             return concreteTexture;
@@ -304,9 +303,9 @@ package starling.textures
 		public function restoreRenderTexture(textureBase:TextureBase):void
 		{
 			if(this is ConcreteTexture)
-				(this as ConcreteTexture).restoreWithNativeTexture(textureBase);
+				(this as ConcreteTexture).restoreWithNativeTexture(textureBase, Context3DTextureFormat.BGRA);
 			else if (this is SubTexture)
-				((this as SubTexture).parent as ConcreteTexture).restoreWithNativeTexture(textureBase);
+				((this as SubTexture).parent as ConcreteTexture).restoreWithNativeTexture(textureBase, Context3DTextureFormat.BGRA);
 		}
 		/** Restores the texture with atf data**/
 		public function restoreWithATFData(bytes:ByteArray):void
@@ -318,9 +317,9 @@ package starling.textures
                     atfData.width, atfData.height, atfData.format, false);
             uploadAtfData(nativeTexture, bytes);
 			if(this is ConcreteTexture)
-				(this as ConcreteTexture).restoreWithNativeTexture(nativeTexture);
+				(this as ConcreteTexture).restoreWithNativeTexture(nativeTexture, atfData.format);
 			else if (this is SubTexture)
-				((this as SubTexture).parent as ConcreteTexture).restoreWithNativeTexture(nativeTexture);
+				((this as SubTexture).parent as ConcreteTexture).restoreWithNativeTexture(nativeTexture, atfData.format);
 		}
 		
 		
