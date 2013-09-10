@@ -38,6 +38,7 @@ package starling.core
      */
     public class RenderSupport
     {
+		
         // members
 
         private var mProjectionMatrix:Matrix;
@@ -46,7 +47,8 @@ package starling.core
         private var mMvpMatrix3D:Matrix3D;
         private var mMatrixStack:Vector.<Matrix>;
         private var mMatrixStackSize:int;
-
+		
+		private var _mNumTexturesUsed:int;
 		private var mCustomDrawCount:int;
         private var mDrawCount:int;
         private var mBlendMode:String;
@@ -491,6 +493,16 @@ package starling.core
 
         /** Indicates the number of stage3D draw calls. */
         public function get drawCount():int { return mDrawCount; }
+		
+		public function get numTexturesUsed():int
+		{
+			return _mNumTexturesUsed;
+		}
+		
+		public function set numTexturesUsed(value:int):void
+		{
+			_mNumTexturesUsed = value;
+		}
 		/** raise the custom drawcall counter**/
 		public function raiseCustomDrawCount():void{
 			mCustomDrawCount++;

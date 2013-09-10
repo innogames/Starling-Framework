@@ -414,7 +414,10 @@ package starling.core
             mSupport.finishQuadBatch();
 
             if (mStatsDisplay)
+			{
                 mStatsDisplay.drawCount = mSupport.drawCount;
+				mStatsDisplay.textureUsage = mSupport.numTexturesUsed;
+			}
 
             if (!mShareContext)
                 mContext.present();
@@ -812,6 +815,11 @@ package starling.core
 		
 		public function resetCustomDrawCount():void {
 			mSupport.resetCustomDrawCount();
+		}
+		
+		public function setUsedTexturesCount(numTexturesUsed:int):void
+		{
+			mSupport.numTexturesUsed = numTexturesUsed;
 		}
 
         /** The Starling stage object, which is the root of the display tree that is rendered. */
