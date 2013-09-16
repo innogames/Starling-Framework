@@ -70,18 +70,6 @@ package starling.textures
 		}
 		
 		/**
-		 * restores the concrete texture with a valid bitmapdata; uploads it directly to the gpu
-		 * @param	data
-		 */
-		internal function restoreBitmapDataTexture(data:BitmapData):void
-		{
-			mData = data;
-			mWidth = getNextPowerOfTwo(data.width);
-			mHeight = getNextPowerOfTwo(data.height);
-			onContextCreated(null);
-		}
-		
-		/**
 		 * restores the concrete texture with a native Texture
 		 * @param	data
 		 */
