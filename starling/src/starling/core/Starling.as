@@ -361,7 +361,7 @@ package starling.core
          *  and <code>render()</code>. */
         public function nextFrame():void
         {
-			VertexData.vertexDataInDomainMemory = null;
+			//VertexData.vertexDataInDomainMemory = null;
 			RenderSupport.reset();
             var now:Number = getTimer() / 1000.0;
             var passedTime:Number = now - mLastFrameTimestamp;
