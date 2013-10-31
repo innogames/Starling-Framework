@@ -231,6 +231,16 @@ package starling.textures
             context.setRenderToBackBuffer();
             mDataUploaded = true;
         }
+
+		/**
+		 * restores the concrete texture with a native Texture
+		 * @param    data
+		 */
+		public function restoreWithNativeTexture(textureBase:TextureBase, format:String):void
+		{
+			mFormat = format;
+			mBase = textureBase;
+		}
         
         // properties
         

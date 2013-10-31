@@ -871,11 +871,7 @@ package starling.core
         }
 		
 		public function raiseCustomDrawCount():void{
-			mSupport.raiseCustomDrawCount();
-		}
-		
-		public function resetCustomDrawCount():void {
-			mSupport.resetCustomDrawCount();
+			mSupport.raiseDrawCount();
 		}
 		
 		public function setUsedTexturesCount(numTexturesUsed:int):void
