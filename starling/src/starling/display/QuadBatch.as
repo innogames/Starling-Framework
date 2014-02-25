@@ -169,7 +169,7 @@ package starling.display
             if (mVertexBuffer)    mVertexBuffer.dispose();
             if (mIndexBuffer)     mIndexBuffer.dispose();
             if (numVertices == 0) return;
-            if (context == null)  throw new MissingContextError();
+            if (context == null || context.driverInfo == "Disposed") return;
             
             mVertexBuffer = context.createVertexBuffer(numVertices, VertexData.ELEMENTS_PER_VERTEX);
             mVertexBuffer.uploadFromVector(mVertexData.rawData, 0, numVertices);
