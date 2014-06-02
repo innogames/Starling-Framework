@@ -102,18 +102,12 @@ package starling.display
             mTinted = false;
             mSyncRequired = false;
             mBatchable = false;
-
-            // Handle lost context. We use the conventional event here (not the one from Starling)
-            // so we're able to create a weak event listener; this avoids memory leaks when people
-            // forget to call "dispose" on the QuadBatch.
-            Starling.current.stage3D.addEventListener(Event.CONTEXT3D_CREATE,
-                                                      onContextCreated, false, 0, true);
         }
 
         /** Disposes vertex- and index-buffer. */
         public override function dispose():void
         {
-            Starling.current.stage3D.removeEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
+
             destroyBuffers();
 
             mVertexData.numVertices = 0;
@@ -125,7 +119,7 @@ package starling.display
 
         private function onContextCreated(event:Object):void
         {
-			//only restore the buffers on contextloss when they we're already created before
+			//only restore the buffers on contextloss when they were already created before
 			if (mVertexBuffer)
             {
 				createBuffers();
@@ -163,13 +157,19 @@ package starling.display
         private function createBuffers():void
         {
             destroyBuffers();
-
+			
             var numVertices:int = mVertexData.numVertices;
             var numIndices:int = mIndexData.length;
             var context:Context3D = Starling.context;
 
             if (numVertices == 0) return;
             if (context == null || context.driverInfo == "Disposed") return;
+			
+			// Handle lost context. We use the conventional event here (not the one from Starling)
+            // so we're able to create a weak event listener; this avoids memory leaks when people
+            // forget to call "dispose" on the QuadBatch.
+            Starling.current.stage3D.addEventListener(Event.CONTEXT3D_CREATE,
+                                                      onContextCreated, false, 0, true);
 
             mVertexBuffer = context.createVertexBuffer(numVertices, VertexData.ELEMENTS_PER_VERTEX);
             mVertexBuffer.uploadFromVector(mVertexData.rawData, 0, numVertices);
@@ -182,8 +182,10 @@ package starling.display
 
         private function destroyBuffers():void
         {
+			
             if (mVertexBuffer)
             {
+				Starling.current.stage3D.removeEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
                 mVertexBuffer.dispose();
                 mVertexBuffer = null;
             }
