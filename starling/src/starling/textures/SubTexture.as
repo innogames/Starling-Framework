@@ -92,8 +92,19 @@ package starling.textures
         {
             var startIndex:int = vertexID * VertexData.ELEMENTS_PER_VERTEX + VertexData.TEXCOORD_OFFSET;
             var stride:int = VertexData.ELEMENTS_PER_VERTEX - 2;
+			var rootClipping:Rectangle = this.rootClipping;
+			var clipX:Number = rootClipping.x;
+            var clipY:Number = rootClipping.y;
+            var clipWidth:Number = rootClipping.width;
+            var clipHeight:Number = rootClipping.height;
+            var endIndex:int = vertexID + count;
 
-            adjustTexCoords(vertexData.rawData, startIndex, stride, count);
+            for (var i:int=vertexID; i<endIndex; ++i)
+            {
+                vertexData.getTexCoords(i, sTexCoords);
+                vertexData.setTexCoords(i, clipX + sTexCoords.x * clipWidth,
+                                           clipY + sTexCoords.y * clipHeight);
+            }
 
             if (mFrame)
             {
@@ -109,6 +120,7 @@ package starling.textures
                 vertexData.translateVertex(vertexID + 3, -deltaRight, -deltaBottom);
             }
         }
+
 
         /** @inheritDoc */
         public override function adjustTexCoords(texCoords:Vector.<Number>,
@@ -146,11 +158,11 @@ package starling.textures
 
         /** Indicates if the parent texture is disposed when this object is disposed. */
         public function get ownsParent():Boolean { return mOwnsParent; }
-        
+
         /** If true, the SubTexture will show the parent region rotated by 90 degrees (CCW). */
         public function get rotated():Boolean { return mRotated; }
 
-        /** The clipping rectangle, which is the region provided on initialization 
+        /** The clipping rectangle, which is the region provided on initialization
          *  scaled into [0.0, 1.0]. */
         public function get clipping():Rectangle
         {
@@ -165,6 +177,23 @@ package starling.textures
 
             RectangleUtil.normalize(clipping);
             return clipping;
+        }
+		
+		private function get rootClipping():Rectangle
+        {
+            var rootClipping:Rectangle = clipping;
+
+            var parentTexture:SubTexture = mParent as SubTexture;
+            while (parentTexture)
+            {
+                var parentClipping:Rectangle = parentTexture.clipping;
+                rootClipping.x = parentClipping.x + rootClipping.x * parentClipping.width;
+                rootClipping.y = parentClipping.y + rootClipping.y * parentClipping.height;
+                rootClipping.width *= parentClipping.width;
+                rootClipping.height *= parentClipping.height;
+                parentTexture = parentTexture.mParent as SubTexture;
+            }
+			return rootClipping;
         }
 
         /** The matrix that is used to transform the texture coordinates into the coordinate
