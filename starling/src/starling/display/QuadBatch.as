@@ -172,7 +172,7 @@ package starling.display
                                                       onContextCreated, false, 0, true);
 
             mVertexBuffer = context.createVertexBuffer(numVertices, VertexData.ELEMENTS_PER_VERTEX);
-            mVertexBuffer.uploadFromVector(mVertexData.rawData, 0, numVertices);
+            mVertexBuffer.uploadFromByteArray(mVertexData.rawData, 0, 0, numVertices);
 
             mIndexBuffer = context.createIndexBuffer(numIndices);
             mIndexBuffer.uploadFromVector(mIndexData, 0, numIndices);
@@ -208,7 +208,7 @@ package starling.display
             {
                 // as last parameter, we could also use 'mNumQuads * 4', but on some
                 // GPU hardware (iOS!), this is slower than updating the complete buffer.
-                mVertexBuffer.uploadFromVector(mVertexData.rawData, 0, mVertexData.numVertices);
+                mVertexBuffer.uploadFromByteArray(mVertexData.rawData, 0, 0, mVertexData.numVertices);
                 mSyncRequired = false;
             }
         }
@@ -240,7 +240,7 @@ package starling.display
 
             if (mTexture == null || tinted)
                 context.setVertexBufferAt(1, mVertexBuffer, VertexData.COLOR_OFFSET,
-                                          Context3DVertexBufferFormat.FLOAT_4);
+                                          Context3DVertexBufferFormat.BYTES_4);
 
             if (mTexture)
             {
