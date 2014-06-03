@@ -423,12 +423,12 @@ package starling.textures
         }
 
         // properties
-
-        /** The texture frame; produces garbage: use getFrame(resultRectanlge) instead (see class description). */
-        public function get frame():Rectangle
-        {
-            return new Rectangle(0, 0, width, height);
-        }
+        
+        /** The texture frame if it has one (see class description), otherwise <code>null</code>.
+         *  Only SubTextures can have a frame.
+         *
+         *  <p>CAUTION: not a copy, but the actual object! Do not modify!</p> */
+        public function get frame():Rectangle { return null; }
 		
 		/** The texture frame (see class description). */
         public function getFrame(result:Rectangle = null):Rectangle

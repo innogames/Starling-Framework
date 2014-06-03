@@ -43,6 +43,8 @@ package starling.textures
      * 	&lt;/TextureAtlas&gt;
      *  </listing>
      *  
+     *  <strong>Texture Frame</strong>
+     *
      *  <p>If your images have transparent areas at their edges, you can make use of the 
      *  <code>frame</code> property of the Texture class. Trim the texture by removing the 
      *  transparent edges and specify the original texture size like this:</p>
@@ -51,11 +53,25 @@ package starling.textures
      * 	&lt;SubTexture name='trimmed' x='0' y='0' height='10' width='10'
      * 	    frameX='-10' frameY='-10' frameWidth='30' frameHeight='30'/&gt;
      *  </listing>
+     *
+     *  <strong>Texture Rotation</strong>
+     *
+     *  <p>Some atlas generators can optionally rotate individual textures to optimize the texture
+     *  distribution. This is supported via the boolean attribute "rotated". If it is set to
+     *  <code>true</code> for a certain subtexture, this means that the texture on the atlas
+     *  has been rotated by 90 degrees, clockwise. Starling will undo that rotation by rotating
+     *  it counter-clockwise.</p>
+     *
+     *  <p>In this case, the positional coordinates (<code>x, y, width, height</code>)
+     *  are expected to point at the subtexture as it is present on the atlas (in its rotated
+     *  form), while the "frame" properties must describe the texture in its upright form.</p>
+     *
      */
     public class TextureAtlas
     {
         private var mAtlasTexture:Texture;
         private var mTextureInfos:Dictionary;
+        private var mTextureNames:Vector.<String>;
         
         /** helper objects */
         private static var sNames:Vector.<String> = new <String>[];
@@ -129,13 +145,21 @@ package starling.textures
         /** Returns all texture names that start with a certain string, sorted alphabetically. */
         public function getNames(prefix:String="", result:Vector.<String>=null):Vector.<String>
         {
+            var name:String;
             if (result == null) result = new <String>[];
             
-            for (var name:String in mTextureInfos)
+            if (mTextureNames == null)
+            {
+                // optimization: store sorted list of texture names
+                mTextureNames = new <String>[];
+                for (name in mTextureInfos) mTextureNames[mTextureNames.length] = name;
+                mTextureNames.sort(Array.CASEINSENSITIVE);
+            }
+
+            for each (name in mTextureNames)
                 if (name.indexOf(prefix) == 0)
-                    result.push(name);
+                    result[result.length] = name;
             
-            result.sort(Array.CASEINSENSITIVE);
             return result;
         }
 		
@@ -164,18 +188,28 @@ package starling.textures
             return info ? info.frame : null;
         }
         
+        /** If true, the specified region in the atlas is rotated by 90 degrees (clockwise). The
+         *  SubTexture is thus rotated counter-clockwise to cancel out that transformation. */
+        public function getRotation(name:String):Boolean
+        {
+            var info:TextureInfo = mTextureInfos[name];
+            return info ? info.rotated : false;
+        }
+
         /** Adds a named region for a subtexture (described by rectangle with coordinates in 
          *  pixels) with an optional frame. */
         public function addRegion(name:String, region:Rectangle, frame:Rectangle=null,
                                   rotated:Boolean=false):void
         {
             mTextureInfos[name] = new TextureInfo(region, frame, rotated);
+            mTextureNames = null;
         }
         
         /** Removes a region with a certain name. */
         public function removeRegion(name:String):void
         {
             delete mTextureInfos[name];
+            mTextureNames = null;
         }
         
         /** The base texture that makes up the atlas. */
