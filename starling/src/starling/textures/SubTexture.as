@@ -33,10 +33,15 @@ package starling.textures
         private var mWidth:Number;
         private var mHeight:Number;
         private var mTransformationMatrix:Matrix;
+		private var mClipping:Rectangle;
+		private var mRootClipping:Rectangle;
 
         /** Helper object. */
         private static var sTexCoords:Point = new Point();
+		private static var sHelperPoint:Point = new Point();
         private static var sMatrix:Matrix = new Matrix();
+		
+		
 
         /** Creates a new subtexture containing the specified region of a parent texture.
          *
@@ -166,34 +171,43 @@ package starling.textures
          *  scaled into [0.0, 1.0]. */
         public function get clipping():Rectangle
         {
-            var topLeft:Point = new Point();
-            var bottomRight:Point = new Point();
+			var bottomRightY:Number;
+			var bottomRightX:Number;
+			var topLeftY:Number;
+			var topLeftX:Number;
+			if(!mClipping)
+				mClipping = new Rectangle();
+				
+            MatrixUtil.transformCoords(mTransformationMatrix, 0.0, 0.0, sHelperPoint);
+			topLeftX = sHelperPoint.x;
+			topLeftY = sHelperPoint.y;
+            MatrixUtil.transformCoords(mTransformationMatrix, 1.0, 1.0, sHelperPoint);
+			bottomRightX = sHelperPoint.x;
+			bottomRightY = sHelperPoint.y;
+            mClipping.setTo(topLeftX, topLeftY,
+                bottomRightX - topLeftX, bottomRightY - topLeftY);
 
-            MatrixUtil.transformCoords(mTransformationMatrix, 0.0, 0.0, topLeft);
-            MatrixUtil.transformCoords(mTransformationMatrix, 1.0, 1.0, bottomRight);
-
-            var clipping:Rectangle = new Rectangle(topLeft.x, topLeft.y,
-                bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
-
-            RectangleUtil.normalize(clipping);
-            return clipping;
+            RectangleUtil.normalize(mClipping);
+            return mClipping;
         }
 		
 		private function get rootClipping():Rectangle
         {
-            var rootClipping:Rectangle = clipping;
+			if (!mRootClipping)
+				mRootClipping = new Rectangle();
 
+			mRootClipping.copyFrom(clipping);
             var parentTexture:SubTexture = mParent as SubTexture;
             while (parentTexture)
             {
                 var parentClipping:Rectangle = parentTexture.clipping;
-                rootClipping.x = parentClipping.x + rootClipping.x * parentClipping.width;
-                rootClipping.y = parentClipping.y + rootClipping.y * parentClipping.height;
-                rootClipping.width *= parentClipping.width;
-                rootClipping.height *= parentClipping.height;
+                mRootClipping.x = parentClipping.x + mRootClipping.x * parentClipping.width;
+                mRootClipping.y = parentClipping.y + mRootClipping.y * parentClipping.height;
+                mRootClipping.width *= parentClipping.width;
+                mRootClipping.height *= parentClipping.height;
                 parentTexture = parentTexture.mParent as SubTexture;
             }
-			return rootClipping;
+			return mRootClipping;
         }
 
         /** The matrix that is used to transform the texture coordinates into the coordinate

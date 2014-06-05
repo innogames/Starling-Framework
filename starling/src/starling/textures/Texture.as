@@ -18,6 +18,7 @@ package starling.textures
     import flash.geom.Rectangle;
     import flash.system.Capabilities;
     import flash.utils.ByteArray;
+	import flash.utils.Dictionary;
     import flash.utils.getQualifiedClassName;
 
     import starling.core.Starling;
@@ -385,13 +386,45 @@ package starling.textures
                 return new SubTexture(concreteTexture, new Rectangle(0, 0, width, height), true);
         }
 
-        /** Creates a texture that contains a region (in pixels) of another texture. The new
+		/** Creates a texture that contains a region (in pixels) of another texture. The new
          *  texture will reference the base texture; no data is duplicated. */
         public static function fromTexture(texture:Texture, region:Rectangle=null,
                                            frame:Rectangle=null, rotated:Boolean=false):Texture
         {
-            return new SubTexture(texture, region, false, frame, rotated);
+            return texture.getSubTexture(region, frame, rotated);
         }
+		
+		private const _subTextureMap:Dictionary = new Dictionary();
+		private static var sStringBuilder:ByteArray = new ByteArray();
+		protected function getSubTexture(region:Rectangle = null, frame:Rectangle = null, rotated:Boolean = false): SubTexture {
+			
+			sStringBuilder.position = 0;
+			if (region)
+			{
+				sStringBuilder.writeUTFBytes(region.toString());
+			}
+			else
+			{
+				sStringBuilder.writeUTFBytes("none");
+			}
+			
+			if (frame)
+			{
+				sStringBuilder.writeUTFBytes(frame.toString());
+			}
+			else
+			{
+				sStringBuilder.writeUTFBytes("none");
+			}
+			sStringBuilder.writeUTFBytes(String(rotated));
+			sStringBuilder.position = 0;
+			var key:String = sStringBuilder.readUTFBytes(sStringBuilder.length);
+			sStringBuilder.length = 0;
+			if (_subTextureMap[key]) return _subTextureMap[key];
+			var st:SubTexture = new SubTexture(this, region, false, frame, rotated);
+			_subTextureMap[key] = st;
+			return st;
+		}
 
         /** Converts texture coordinates and vertex positions of raw vertex data into the format
          *  required for rendering. While the texture coordinates of an image always use the
@@ -423,7 +456,7 @@ package starling.textures
         }
 
         // properties
-        
+
         /** The texture frame if it has one (see class description), otherwise <code>null</code>.
          *  Only SubTextures can have a frame.
          *
