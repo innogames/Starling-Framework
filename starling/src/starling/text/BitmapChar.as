@@ -41,7 +41,7 @@ package starling.text
         }
         
         /** Adds kerning information relative to a specific other character ID. */
-        public function addKerning(charID:int, amount:Number):void
+        [Inline] final public function addKerning(charID:int, amount:Number):void
         {
             if (mKernings == null)
                 mKernings = new Dictionary();
