@@ -65,6 +65,10 @@ package starling.text
         private static const CHAR_NEWLINE:int         = 10;
         private static const CHAR_CARRIAGE_RETURN:int = 13;
 
+		/** Constants to define which format to use to get the data of the bitmapfont from */
+		public static const FORMAT_XML:uint = 0;
+		public static const FORMAT_JSON:uint = 1;
+
         private var mTexture:Texture;
         private var mChars:Dictionary;
         private var mName:String;
@@ -77,15 +81,15 @@ package starling.text
         private var mCharLocationPool:Vector.<CharLocation>;
         private var mIsHdTexture:Boolean;
 
-        /** Creates a bitmap font by parsing an XML file and uses the specified texture.
+        /** Creates a bitmap font by parsing an XML file or JSON object and uses the specified texture.
          *  If you don't pass any data, the "mini" font will be created. */
-        public function BitmapFont(texture:Texture=null, fontXml:XML=null, isHdTexture:Boolean=true)
+        public function BitmapFont(texture:Texture=null, fontSource:*=null, isHdTexture:Boolean=true, sourceType:uint = FORMAT_XML)
         {
             // if no texture is passed in, we create the minimal, embedded font
-            if (texture == null && fontXml == null)
+            if (texture == null && fontSource == null)
             {
                 texture = MiniBitmapFont.texture;
-                fontXml = MiniBitmapFont.xml;
+                fontSource = MiniBitmapFont.xml;
             }
 
             mName = "unknown";
@@ -97,7 +101,14 @@ package starling.text
             mCharLocationPool = new <CharLocation>[];
             mIsHdTexture = isHdTexture;
 
-            if (fontXml) parseFontXml(fontXml);
+            if (fontSource)
+			{
+			 	switch(sourceType)
+				{
+					case FORMAT_XML: parseFontXml(fontSource); break;
+					case FORMAT_JSON: parseFontJSON(fontSource); break;
+				}
+			}
         }
 
         /** Disposes the texture of the bitmap font! */
@@ -107,13 +118,61 @@ package starling.text
                 mTexture.dispose();
         }
 
+		private function parseFontJSON(fontJSON:Object):void
+		{
+			var scale:Number = mIsHdTexture ? mTexture.scale : mTexture.scale * 2;
+			var frame:Rectangle = mTexture.frame;
+			var frameX:Number = frame ? frame.x : 0;
+			var frameY:Number = frame ? frame.y : 0;
+
+			mName = fontJSON.info.face;
+			mSize = parseFloat(fontJSON.info.size) / scale;
+			mLineHeight = parseFloat(fontJSON.common.lineHeight) / scale;
+			mBaseline = parseFloat(fontJSON.common.base) / scale;
+
+			if (fontJSON.info.smooth.toString() == "0")
+				smoothing = TextureSmoothing.NONE;
+
+			if (mSize <= 0)
+			{
+				trace("[Starling] Warning: invalid font size in '" + mName + "' font.");
+				mSize = (mSize == 0.0 ? 16.0 : mSize * -1.0);
+			}
+
+			for each (var charElement:Object in fontJSON.chars.char)
+			{
+				var id:int = charElement.id;
+				var xOffset:Number = Number(charElement.xoffset) / scale;
+				var yOffset:Number = Number(charElement.yoffset) / scale;
+				var xAdvance:Number = Number(charElement.xadvance) / scale;
+
+				var region:Rectangle = new Rectangle();
+				region.x = Number(charElement.x) / scale + frameX;
+				region.y = Number(charElement.y) / scale + frameY;
+				region.width  = Number(charElement.width) / scale;
+				region.height = Number(charElement.height) / scale;
+
+				var texture:Texture = Texture.fromTexture(mTexture, region);
+				var bitmapChar:BitmapChar = new BitmapChar(id, texture, xOffset, yOffset, xAdvance);
+				addChar(id, bitmapChar);
+			}
+
+			for each (var kerningElement:Object in fontJSON.kernings.kerning)
+			{
+				var first:int = kerningElement.first;
+				var second:int = kerningElement.second;
+				var amount:Number = Number(kerningElement.amount) / scale;
+				if (second in mChars) getChar(second).addKerning(first, amount);
+			}
+		}
+
         private function parseFontXml(fontXml:XML):void
         {
             var scale:Number = mIsHdTexture ? mTexture.scale : mTexture.scale * 2;
             var frame:Rectangle = mTexture.frame;
             var frameX:Number = frame ? frame.x : 0;
             var frameY:Number = frame ? frame.y : 0;
-            
+
             mName = fontXml.info.attribute("face");
             mSize = parseFloat(fontXml.info.attribute("size")) / scale;
             mLineHeight = parseFloat(fontXml.common.attribute("lineHeight")) / scale;
