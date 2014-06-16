@@ -139,30 +139,36 @@ package starling.text
 				mSize = (mSize == 0.0 ? 16.0 : mSize * -1.0);
 			}
 
-			for each (var charElement:Object in fontJSON.chars.char)
+			if(fontJSON.chars)
 			{
-				var id:int = charElement.id;
-				var xOffset:Number = Number(charElement.xoffset) / scale;
-				var yOffset:Number = Number(charElement.yoffset) / scale;
-				var xAdvance:Number = Number(charElement.xadvance) / scale;
+				for each (var charElement:Object in fontJSON.chars.char)
+				{
+					var id:int = charElement.id;
+					var xOffset:Number = Number(charElement.xoffset) / scale;
+					var yOffset:Number = Number(charElement.yoffset) / scale;
+					var xAdvance:Number = Number(charElement.xadvance) / scale;
 
-				var region:Rectangle = new Rectangle();
-				region.x = Number(charElement.x) / scale + frameX;
-				region.y = Number(charElement.y) / scale + frameY;
-				region.width  = Number(charElement.width) / scale;
-				region.height = Number(charElement.height) / scale;
+					var region:Rectangle = new Rectangle();
+					region.x = Number(charElement.x) / scale + frameX;
+					region.y = Number(charElement.y) / scale + frameY;
+					region.width  = Number(charElement.width) / scale;
+					region.height = Number(charElement.height) / scale;
 
-				var texture:Texture = Texture.fromTexture(mTexture, region);
-				var bitmapChar:BitmapChar = new BitmapChar(id, texture, xOffset, yOffset, xAdvance);
-				addChar(id, bitmapChar);
+					var texture:Texture = Texture.fromTexture(mTexture, region);
+					var bitmapChar:BitmapChar = new BitmapChar(id, texture, xOffset, yOffset, xAdvance);
+					addChar(id, bitmapChar);
+				}
 			}
 
-			for each (var kerningElement:Object in fontJSON.kernings.kerning)
+			if(fontJSON.kernings)
 			{
-				var first:int = kerningElement.first;
-				var second:int = kerningElement.second;
-				var amount:Number = Number(kerningElement.amount) / scale;
-				if (second in mChars) getChar(second).addKerning(first, amount);
+				for each (var kerningElement:Object in fontJSON.kernings.kerning)
+				{
+					var first:int = kerningElement.first;
+					var second:int = kerningElement.second;
+					var amount:Number = Number(kerningElement.amount) / scale;
+					if (second in mChars) getChar(second).addKerning(first, amount);
+				}
 			}
 		}
 
