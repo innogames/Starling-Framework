@@ -130,7 +130,7 @@ package starling.text
 			mLineHeight = parseFloat(fontJSON.common.lineHeight) / scale;
 			mBaseline = parseFloat(fontJSON.common.base) / scale;
 
-			if (fontJSON.info.smooth.toString() == "0")
+			if (fontJSON.info.smooth && fontJSON.info.smooth.toString() == "0")
 				smoothing = TextureSmoothing.NONE;
 
 			if (mSize <= 0)
