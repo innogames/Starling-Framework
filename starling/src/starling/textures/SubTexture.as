@@ -1,7 +1,7 @@
 // =================================================================================================
 //
 //	Starling Framework
-//	Copyright 2011 Gamua OG. All Rights Reserved.
+//	Copyright 2011-2014 Gamua. All Rights Reserved.
 //
 //	This program is free software. You can redistribute and/or modify it
 //	in accordance with the terms of the accompanying license agreement.
@@ -154,7 +154,7 @@ package starling.textures
                 MatrixUtil.transformCoords(sMatrix, u, v, sTexCoords);
 
                 texCoords[    i   ] = sTexCoords.x;
-                texCoords[int(i+1)] = sTexCoords.y
+                texCoords[int(i+1)] = sTexCoords.y;
             }
         }
 
@@ -232,7 +232,7 @@ package starling.textures
         public override function get height():Number { return mHeight; }
 
         /** @inheritDoc */
-        public override function get nativeWidth():Number { return mWidth * scale }
+        public override function get nativeWidth():Number { return mWidth * scale; }
 
         /** @inheritDoc */
         public override function get nativeHeight():Number { return mHeight * scale; }

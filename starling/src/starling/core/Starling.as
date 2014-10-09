@@ -1,7 +1,7 @@
 // =================================================================================================
 //
 //	Starling Framework
-//	Copyright 2012 Gamua OG. All Rights Reserved.
+//	Copyright 2011-2014 Gamua. All Rights Reserved.
 //
 //	This program is free software. You can redistribute and/or modify it
 //	in accordance with the terms of the accompanying license agreement.
@@ -16,6 +16,7 @@ package starling.core
     import flash.display.StageScaleMode;
     import flash.display3D.Context3D;
     import flash.display3D.Context3DCompareMode;
+    import flash.display3D.Context3DRenderMode;
     import flash.display3D.Context3DTriangleFace;
     import flash.display3D.Program3D;
     import flash.errors.IllegalOperationError;
@@ -207,9 +208,10 @@ package starling.core
         private var mPreviousViewPort:Rectangle;
         private var mClippedViewPort:Rectangle;
 
+        private var mViewPortScaleFactor:Number;
+
         private var mNativeStage:flash.display.Stage;
         private var mNativeOverlay:flash.display.Sprite;
-        private var mNativeStageContentScaleFactor:Number;
 
         private static var sCurrent:Starling;
         private static var sHandleLostContext:Boolean;
@@ -261,7 +263,7 @@ package starling.core
             mNativeOverlay = new Sprite();
             mNativeStage = stage;
             mNativeStage.addChild(mNativeOverlay);
-            mNativeStageContentScaleFactor = 1.0;
+            mViewPortScaleFactor = 1.0;
             mTouchProcessor = new TouchProcessor(mStage);
             mJuggler = new Juggler();
             mAntiAliasing = 0;
@@ -299,8 +301,8 @@ package starling.core
                     throw new ArgumentError("When sharing the context3D, " +
                         "the actual profile has to be supplied");
                 else
-                    mProfile = profile as String;
-
+                    mProfile = "profile" in mStage3D.context3D ? mStage3D.context3D["profile"] :
+                                                                 profile as String;
                 mShareContext = true;
                 setTimeout(initialize, 1); // we don't call it right away, because Starling should
                                            // behave the same way with or without a shared context
@@ -354,7 +356,7 @@ package starling.core
             var currentProfile:String;
 
             if (profile == "auto")
-                profiles = ["baselineExtended", "baseline", "baselineConstrained"];
+                profiles = ["standard", "baselineExtended", "baseline", "baselineConstrained"];
             else if (profile is String)
                 profiles = [profile as String];
             else if (profile is Array)
@@ -381,8 +383,18 @@ package starling.core
             
             function onCreated(event:Event):void
             {
-                mProfile = currentProfile;
-                onFinished();
+                var context:Context3D = stage3D.context3D;
+
+                if (renderMode == Context3DRenderMode.AUTO && profiles.length != 0 &&
+                    context.driverInfo.indexOf("Software") != -1)
+                {
+                    onError(event);
+                }
+                else
+                {
+                    mProfile = currentProfile;
+                    onFinished();
+                }
             }
 
             function onError(event:Event):void
@@ -419,14 +431,11 @@ package starling.core
             mContext.enableErrorChecking = mEnableErrorChecking;
             contextData[PROGRAM_DATA_NAME] = new Dictionary();
 
-            if (mProfile == null)
-                mProfile = mContext["profile"];
-
-            updateViewPort(true);
-
+            
             trace("[Starling] Initialization complete.");
             trace("[Starling] Display Driver:", mContext.driverInfo);
-
+            
+            updateViewPort(true);
             dispatchEventWith(Event.CONTEXT3D_CREATE, false, mContext);
         }
 
@@ -546,9 +555,9 @@ package starling.core
                         mAntiAliasing, false, mSupportHighResolutions);
 
                     if (mSupportHighResolutions && "contentsScaleFactor" in mNativeStage)
-                        mNativeStageContentScaleFactor = mNativeStage["contentsScaleFactor"];
+                        mViewPortScaleFactor = mNativeStage["contentsScaleFactor"];
                     else
-                        mNativeStageContentScaleFactor = 1.0;
+                        mViewPortScaleFactor = 1.0;
                 }
             }
         }
@@ -866,16 +875,42 @@ package starling.core
         {
             return sContextData[mStage3D] as Dictionary;
         }
+        
+        /** Returns the actual width (in pixels) of the back buffer. */
+        public function get backBufferWidth():int
+        {
+            return mClippedViewPort.width * mViewPortScaleFactor;
+        }
 
-        /** Returns the actual width (in pixels) of the back buffer. This can differ from the
-         *  width of the viewPort rectangle if it is partly outside the native stage. */
-        public function get backBufferWidth():int { return mClippedViewPort.width; }
+        /** Returns the actual height (in pixels) of the back buffer. */
+        public function get backBufferHeight():int
+        {
+            return mClippedViewPort.height * mViewPortScaleFactor;
+        }
 
-        /** Returns the actual height (in pixels) of the back buffer. This can differ from the
-         *  height of the viewPort rectangle if it is partly outside the native stage. */
-        public function get backBufferHeight():int { return mClippedViewPort.height; }
-
-        /** Indicates if multitouch simulation with "Shift" and "Ctrl"/"Cmd"-keys is enabled.
+        /** Returns the width of the visible part of the viewPort. This can differ from the
+         *  width of the 'viewPort' rectangle if it is partly outside the native stage.
+         *
+         *  <p>The returned number is not always in pixel units: HiDPI-displays with an activated
+         *  'supportHighResolutions' setting will return the size in points. For actual pixel
+         *  values, call 'backBufferWidth' instead.</p> */
+        public function get viewPortWidth():Number
+        {
+            return mClippedViewPort.width;
+        }
+        
+        /** Returns the height of the visible part of the viewPort. This can differ from the
+         *  height of the 'viewPort' rectangle if it is partly outside the native stage.
+         *
+         *  <p>The returned number is not always in pixel units: HiDPI-displays with an activated
+         *  'supportHighResolutions' setting will return the size in points. For actual pixel
+         *  values, call 'backBufferHeight' instead.</p> */
+        public function get viewPortHeight():Number
+        {
+            return mClippedViewPort.height;
+        }
+        
+        /** Indicates if multitouch simulation with "Shift" and "Ctrl"/"Cmd"-keys is enabled. 
          *  @default false */
         public function get simulateMultitouch():Boolean { return mSimulateMultitouch; }
         public function set simulateMultitouch(value:Boolean):void
@@ -912,7 +947,7 @@ package starling.core
          *  set of textures depending on the display resolution. */
         public function get contentScaleFactor():Number
         {
-            return (mViewPort.width * mNativeStageContentScaleFactor) / mStage.stageWidth;
+            return (mViewPort.width * mViewPortScaleFactor) / mStage.stageWidth;
         }
 
         /** A Flash Sprite placed directly on top of the Starling content. Use it to display native
@@ -998,8 +1033,10 @@ package starling.core
         public function get shareContext() : Boolean { return mShareContext; }
         public function set shareContext(value : Boolean) : void { mShareContext = value; }
 
-        /** The Context3D profile as requested in the constructor. Beware that if you are
-         *  using a shared context, this is simply what you passed to the Starling constructor. */
+        
+        /** The Context3D profile used for rendering. Beware that if you are using a shared
+         *  context in AIR 3.9 / Flash Player 11 or below, this is simply what you passed to
+         *  the Starling constructor. */
         public function get profile():String { return mProfile; }
 
         /** Indicates that if the device supports HiDPI screens Starling will attempt to allocate
@@ -1034,7 +1071,7 @@ package starling.core
          *  internal code Starling can't avoid), so do not call this method too often. */
         public function get contextValid():Boolean
         {
-            return mContext && mContext.driverInfo != "Disposed"
+            return mContext && mContext.driverInfo != "Disposed";
         }
 
         // static properties

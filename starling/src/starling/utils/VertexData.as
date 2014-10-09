@@ -1,7 +1,7 @@
 // =================================================================================================
 //
-//	Starling Framework
-//	Copyright 2011 Gamua OG. All Rights Reserved.
+//  Starling Framework
+//  Copyright 2011-2014 Gamua. All Rights Reserved.
 //
 //	This program is free software. You can redistribute and/or modify it
 //	in accordance with the terms of the accompanying license agreement.
@@ -391,6 +391,9 @@ package starling.utils
             mRawData.position = 0;
             var result:String = "[VertexData \n";
 
+            var position:Point = new Point();
+            var texCoords:Point = new Point();
+            
             for (var i:int=0; i<numVertices; ++i)
             {
                 result += "  [Vertex " + i + ": " +
