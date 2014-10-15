@@ -120,8 +120,8 @@ package starling.textures
         public function dispose():void
         {
             // override in subclasses
-        }
 
+        }
         /** Creates a texture object from any of the supported data types, using the specified
          *  options.
          *
@@ -346,7 +346,7 @@ package starling.textures
 
             if (context == null) throw new MissingContextError();
 
-            
+
             var origWidth:Number  = width  * scale;
             var origHeight:Number = height * scale;
             var useRectTexture:Boolean = !mipMapping && !repeat &&
@@ -368,7 +368,7 @@ package starling.textures
 
                 actualWidth  = getNextPowerOfTwo(origWidth);
                 actualHeight = getNextPowerOfTwo(origHeight);
-                
+
                 nativeTexture = context.createTexture(actualWidth, actualHeight, format,
                                                       optimizeForRenderToTexture);
             }
@@ -379,14 +379,14 @@ package starling.textures
 
             concreteTexture.onRestore = concreteTexture.clear;
 
-            
+
             if (actualWidth - origWidth < 0.001 && actualHeight - origHeight < 0.001)
                 return concreteTexture;
             else
                 return new SubTexture(concreteTexture, new Rectangle(0, 0, width, height), true);
         }
 
-        
+
         /** Creates a texture that contains a region (in pixels) of another texture. The new
          *  texture will reference the base texture; no data is duplicated.
          *
@@ -405,34 +405,27 @@ package starling.textures
         }
 		
 		private const _subTextureMap:Dictionary = new Dictionary();
-		private static var sStringBuilder:ByteArray = new ByteArray();
+		private static const MAX_KEY_RANGE:uint = 4096 << 12;
+		
 		protected function getSubTexture(region:Rectangle = null, frame:Rectangle = null, rotated:Boolean = false): SubTexture {
 			
-			sStringBuilder.position = 0;
-			if (region)
-			{
-				sStringBuilder.writeUTFBytes(region.toString());
-			}
-			else
-			{
-				sStringBuilder.writeUTFBytes("none");
-			}
+			//for the region we have to take position and frame; scale9Images take subtextures with smaller dimensions starting with the same pixel
+			var regionKey:uint = region ? ((region.x << 12) | region.y) : MAX_KEY_RANGE;
+			var regionDimensionKey:uint = region ? ((region.width << 12) | region.height) : MAX_KEY_RANGE;
 			
-			if (frame)
-			{
-				sStringBuilder.writeUTFBytes(frame.toString());
-			}
-			else
-			{
-				sStringBuilder.writeUTFBytes("none");
-			}
-			sStringBuilder.writeUTFBytes(String(rotated));
-			sStringBuilder.position = 0;
-			var key:String = sStringBuilder.readUTFBytes(sStringBuilder.length);
-			sStringBuilder.length = 0;
-			if (_subTextureMap[key]) return _subTextureMap[key];
+			if (!_subTextureMap[regionKey])
+				_subTextureMap[regionKey] = new Dictionary();
+			if (!_subTextureMap[regionKey][regionDimensionKey])
+				_subTextureMap[regionKey][regionDimensionKey] = new Dictionary();
+				
+			//for the frame we take just the startpixel to identify it
+			var frameKey:uint = frame ? ((frame.x << 13) | (frame.y << 1) | int(rotated)) : MAX_KEY_RANGE;
+			
+			if (_subTextureMap[regionKey][regionDimensionKey][frameKey])
+				return _subTextureMap[regionKey][regionDimensionKey][frameKey];
+				
 			var st:SubTexture = new SubTexture(this, region, false, frame, rotated);
-			_subTextureMap[key] = st;
+			_subTextureMap[regionKey][regionDimensionKey][frameKey] = st;
 			return st;
 		}
 
