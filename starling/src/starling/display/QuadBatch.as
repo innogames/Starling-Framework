@@ -20,8 +20,10 @@ package starling.display
     import flash.geom.Matrix;
     import flash.geom.Matrix3D;
     import flash.geom.Rectangle;
-    import flash.utils.Dictionary;
-    import flash.utils.getQualifiedClassName;
+	import flash.utils.ByteArray;
+	import flash.utils.Dictionary;
+	import flash.utils.Endian;
+	import flash.utils.getQualifiedClassName;
 
     import starling.core.RenderSupport;
     import starling.core.Starling;
@@ -79,7 +81,7 @@ package starling.display
         private var mSmoothing:String;
 
         private var mVertexBuffer:VertexBuffer3D;
-        private var mIndexData:Vector.<uint>;
+        private var mIndexData:ByteArray;
         private var mIndexBuffer:IndexBuffer3D;
 
         /** The raw vertex data of the quad. After modifying its contents, call
@@ -97,7 +99,8 @@ package starling.display
         public function QuadBatch()
         {
             mVertexData = new VertexData(0, true);
-            mIndexData = new <uint>[];
+            mIndexData = new ByteArray();
+			mIndexData.endian = Endian.LITTLE_ENDIAN;
             mNumQuads = 0;
             mTinted = false;
             mSyncRequired = false;
@@ -111,7 +114,7 @@ package starling.display
             destroyBuffers();
 
             mVertexData.numVertices = 0;
-            mIndexData.length = 0;
+            mIndexData.clear();
             mNumQuads = 0;
 
             super.dispose();
@@ -137,7 +140,8 @@ package starling.display
         {
             var clone:QuadBatch = new QuadBatch();
             clone.mVertexData = mVertexData.clone(0, mNumQuads * 4);
-            clone.mIndexData = mIndexData.slice(0, mNumQuads * 6);
+			mIndexData.position = 0;
+            clone.mIndexData.readBytes(mIndexData);
             clone.mNumQuads = mNumQuads;
             clone.mTinted = mTinted;
             clone.mTexture = mTexture;
@@ -163,7 +167,7 @@ package starling.display
             destroyBuffers();
 			
             var numVertices:int = mVertexData.numVertices;
-            var numIndices:int = mIndexData.length;
+            var numIndices:int = mIndexData.length/2;
             var context:Context3D = Starling.context;
 
             if (numVertices == 0) return;
@@ -179,7 +183,7 @@ package starling.display
             mVertexBuffer.uploadFromByteArray(mVertexData.rawData, 0, 0, numVertices);
 
             mIndexBuffer = context.createIndexBuffer(numIndices);
-            mIndexBuffer.uploadFromVector(mIndexData, 0, numIndices);
+            mIndexBuffer.uploadFromByteArray(mIndexData, 0, 0, numIndices);
 
             mSyncRequired = false;
         }
@@ -644,16 +648,16 @@ package starling.display
             if (mNumQuads > value) mNumQuads = value;
 
             mVertexData.numVertices = value * 4;
-            mIndexData.length = value * 6;
-
+            mIndexData.length = value * 6 * 2;
+			mIndexData.position = int(oldCapacity * 6 * 2);
             for (var i:int=oldCapacity; i<value; ++i)
             {
-                mIndexData[int(i*6  )] = i*4;
-                mIndexData[int(i*6+1)] = i*4 + 1;
-                mIndexData[int(i*6+2)] = i*4 + 2;
-                mIndexData[int(i*6+3)] = i*4 + 1;
-                mIndexData[int(i*6+4)] = i*4 + 3;
-                mIndexData[int(i*6+5)] = i*4 + 2;
+                mIndexData.writeShort(i*4 + 0);
+				mIndexData.writeShort(i*4 + 1);
+				mIndexData.writeShort(i*4 + 2);
+				mIndexData.writeShort(i*4 + 1);
+				mIndexData.writeShort(i*4 + 3);
+				mIndexData.writeShort(i*4 + 2);
             }
 
             destroyBuffers();
