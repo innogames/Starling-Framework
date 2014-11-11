@@ -74,13 +74,14 @@ package starling.display
         private static var sHelperPoint:Point = new Point();
         private static var sBroadcastListeners:Vector.<DisplayObject> = new <DisplayObject>[];
         private static var sSortBuffer:Vector.<DisplayObject> = new <DisplayObject>[];
-        
+
+        private static const IS_DEBUGGER:Boolean = Capabilities.isDebugger;
         // construction
         
         /** @private */
         public function DisplayObjectContainer()
         {
-            if (Capabilities.isDebugger && 
+            if (IS_DEBUGGER &&
                 getQualifiedClassName(this) == "starling.display::DisplayObjectContainer")
             {
                 throw new AbstractClassError();
