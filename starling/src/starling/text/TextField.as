@@ -131,20 +131,17 @@ package starling.text
             mAutoSize = TextFieldAutoSize.NONE;
             mHitArea = new Rectangle(0, 0, width, height);
             this.fontName = fontName;
-            
-            addEventListener(Event.FLATTEN, onFlatten);
         }
         
         /** Disposes the underlying texture data. */
         public override function dispose():void
         {
-            removeEventListener(Event.FLATTEN, onFlatten);
             if (mImage) mImage.texture.dispose();
             if (mQuadBatch) mQuadBatch.dispose();
             super.dispose();
         }
         
-        private function onFlatten():void
+        override protected function onFlatten():void
         {
             if (mRequiresRedraw) redraw();
         }

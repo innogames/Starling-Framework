@@ -147,6 +147,7 @@ package starling.display
         private var mTransformationMatrix:Matrix;
         private var mOrientationChanged:Boolean;
         private var mFilter:FragmentFilter;
+		private var mIsAddedToStage:Boolean = false;
         
         /** Helper objects. */
         private static var sAncestors:Vector.<DisplayObject> = new <DisplayObject>[];
@@ -351,9 +352,51 @@ package starling.display
             else if (vAlign == VAlign.BOTTOM) mPivotY = bounds.y + bounds.height;
             else throw new ArgumentError("Invalid vertical alignment: " + vAlign);
         }
-        
+
+		protected function onRemovedFromStage():void
+		{
+			//do nothing here; it's only for memory saving implementations of removed from stage handlers
+		}
+
+		protected function onAddedToStage():void
+		{
+			//do nothing here; it's only for memory saving implementations of added to stage handlers
+		}
+
+		protected function onFlatten():void
+		{
+			//do nothing here; it's only for memory saving implementations of flatten handlers
+		}
+
         // internal methods
-        
+		/**
+		 * sets the added to stage value
+		 * @param value
+		 */
+        internal function set isAddedToStage(value:Boolean):void
+		{
+			if(mIsAddedToStage != value)
+			{
+				if(value)
+					onAddedToStage();
+				else
+					onRemovedFromStage();
+
+				mIsAddedToStage = value;
+			}
+		}
+
+		/**
+		 * sets the added to stage value
+		 * @param value
+		 */
+		internal function set isFlattenRequested(value:Boolean):void
+		{
+			if(value)
+				onFlatten();
+		}
+
+
         /** @private */
         internal function setParent(value:DisplayObjectContainer):void 
         {
@@ -366,7 +409,7 @@ package starling.display
                 throw new ArgumentError("An object cannot be added as a child to itself or one " +
                                         "of its children (or children's children, etc.)");
             else
-                mParent = value; 
+                mParent = value;
         }
         
         // helpers

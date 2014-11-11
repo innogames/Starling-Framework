@@ -131,9 +131,11 @@ package starling.display
                     
                     if (stage)
                     {
+						child.isAddedToStage = true;
                         var container:DisplayObjectContainer = child as DisplayObjectContainer;
                         if (container) container.broadcastEventWith(Event.ADDED_TO_STAGE);
                         else           child.dispatchEventWith(Event.ADDED_TO_STAGE);
+
                     }
                 }
                 
@@ -144,8 +146,30 @@ package starling.display
                 throw new RangeError("Invalid child index");
             }
         }
-        
-        /** Removes a child from the container. If the object is not a child, nothing happens. 
+
+
+		override internal function set isAddedToStage(value:Boolean):void
+		{
+			super.isAddedToStage = value;
+			var length:int = mChildren.length;
+			for(var i:int; i < length; i++)
+			{
+				mChildren[i].isAddedToStage = value;
+			}
+		}
+
+
+		override internal function set isFlattenRequested(value:Boolean):void
+		{
+			super.isFlattenRequested = value;
+			var length:int = mChildren.length;
+			for(var i:int; i < length; i++)
+			{
+				mChildren[i].isFlattenRequested = value;
+			}
+		}
+
+		/** Removes a child from the container. If the object is not a child, nothing happens.
          *  If requested, the child will be disposed right away. */
         public function removeChild(child:DisplayObject, dispose:Boolean=false):DisplayObject
         {
@@ -162,12 +186,14 @@ package starling.display
             {
                 var child:DisplayObject = mChildren[index];
                 child.dispatchEventWith(Event.REMOVED, true);
-                
+
                 if (stage)
                 {
+					child.isAddedToStage = false;
                     var container:DisplayObjectContainer = child as DisplayObjectContainer;
                     if (container) container.broadcastEventWith(Event.REMOVED_FROM_STAGE);
                     else           child.dispatchEventWith(Event.REMOVED_FROM_STAGE);
+
                 }
                 
                 child.setParent(null);

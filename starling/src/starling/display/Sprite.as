@@ -101,6 +101,7 @@ package starling.display
         public function flatten():void
         {
             mFlattenRequested = true;
+			isFlattenRequested = true;
             broadcastEventWith(Event.FLATTEN);
         }
         
@@ -109,6 +110,7 @@ package starling.display
         public function unflatten():void
         {
             mFlattenRequested = false;
+			isFlattenRequested = false;
             disposeFlattenedContents();
         }
         
