@@ -50,7 +50,6 @@ package starling.core
         private var mMatrixStackSize:int;
         
         private var mDrawCount:int;
-        private var mNumTexturesUsed:int;
         private var mBlendMode:String;
         private var mRenderTarget:Texture;
         
@@ -284,7 +283,7 @@ package starling.core
         public function applyClipRect():void
         {
             finishQuadBatch();
-            
+
             var context:Context3D = Starling.context;
             if (context == null) return;
             
@@ -489,9 +488,5 @@ package starling.core
         
         /** Indicates the number of stage3D draw calls. */
         public function get drawCount():int { return mDrawCount; }
-
-		public function get numTexturesUsed():int { return mNumTexturesUsed; }
-
-		public function set numTexturesUsed(value:int):void	{ mNumTexturesUsed = value;	}
 	}
 }

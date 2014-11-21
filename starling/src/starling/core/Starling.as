@@ -514,7 +514,6 @@ package starling.core
             if (mStatsDisplay)
 			{
                 mStatsDisplay.drawCount = mSupport.drawCount;
-				mStatsDisplay.textureUsage = mSupport.numTexturesUsed;
 			}
 
             if (!mShareContext)
@@ -1009,11 +1008,6 @@ package starling.core
 		public function raiseCustomDrawCount():void{
 			mSupport.raiseDrawCount();
 		}
-		
-		public function setUsedTexturesCount(numTexturesUsed:int):void
-		{
-			mSupport.numTexturesUsed = numTexturesUsed;
-		}
 
         /** The Starling stage object, which is the root of the display tree that is rendered. */
         public function get stage():Stage { return mStage; }
@@ -1123,5 +1117,11 @@ package starling.core
             else
                 sHandleLostContext = value;
         }
+
+		public function setAdditionalStat(name:String, value:Number):void
+		{
+			if(mStatsDisplay)
+				mStatsDisplay.setAdditionalStat(name, value);
+		}
     }
 }
