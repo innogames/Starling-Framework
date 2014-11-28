@@ -153,11 +153,12 @@ package starling.display
         private static var sAncestors:Vector.<DisplayObject> = new <DisplayObject>[];
         private static var sHelperRect:Rectangle = new Rectangle();
         private static var sHelperMatrix:Matrix  = new Matrix();
-        
+
+		private static const IS_DEBUGGER:Boolean = Capabilities.isDebugger;
         /** @private */ 
         public function DisplayObject()
         {
-            if (Capabilities.isDebugger && 
+            if (IS_DEBUGGER &&
                 getQualifiedClassName(this) == "starling.display::DisplayObject")
             {
                 throw new AbstractClassError();

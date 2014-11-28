@@ -103,10 +103,11 @@ package starling.textures
      */
     public class Texture
     {
+		private static const IS_DEBUGGER:Boolean = Capabilities.isDebugger;
         /** @private */
         public function Texture()
         {
-            if (Capabilities.isDebugger &&
+            if (IS_DEBUGGER &&
                 getQualifiedClassName(this) == "starling.textures::Texture")
             {
                 throw new AbstractClassError();

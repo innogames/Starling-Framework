@@ -67,6 +67,8 @@ package starling.filters
      */ 
     public class FragmentFilter
     {
+		private static const IS_DEBUGGER:Boolean = Capabilities.isDebugger;
+
         /** The minimum size of a filter texture. */
         private const MIN_TEXTURE_SIZE:int = 64;
         
@@ -119,7 +121,7 @@ package starling.filters
          *  This constructor may only be called by the constructor of a subclass. */
         public function FragmentFilter(numPasses:int=1, resolution:Number=1.0)
         {
-            if (Capabilities.isDebugger && 
+            if (IS_DEBUGGER &&
                 getQualifiedClassName(this) == "starling.filters::FragmentFilter")
             {
                 throw new AbstractClassError();
