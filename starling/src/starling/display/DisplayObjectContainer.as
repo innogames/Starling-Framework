@@ -183,7 +183,7 @@ package starling.display
          *  requested, the child will be disposed right away. */
         public function removeChildAt(index:int, dispose:Boolean=false):DisplayObject
         {
-            if (index >= 0 && index < numChildren)
+            if (index >= 0 && index < mChildren.length)
             {
                 var child:DisplayObject = mChildren[index];
                 child.dispatchEventWith(Event.REMOVED, true);
@@ -214,8 +214,8 @@ package starling.display
          *  If no arguments are given, all children will be removed. */
         public function removeChildren(beginIndex:int=0, endIndex:int=-1, dispose:Boolean=false):void
         {
-            if (endIndex < 0 || endIndex >= numChildren) 
-                endIndex = numChildren - 1;
+            if (endIndex < 0 || endIndex >= mChildren.length)
+                endIndex = mChildren.length - 1;
             
             for (var i:int=beginIndex; i<=endIndex; ++i)
                 removeChildAt(beginIndex, dispose);
@@ -224,7 +224,7 @@ package starling.display
         /** Returns a child object at a certain index. */
         public function getChildAt(index:int):DisplayObject
         {
-            if (index >= 0 && index < numChildren)
+            if (index >= 0 && index < mChildren.length)
                 return mChildren[index];
             else
                 throw new RangeError("Invalid child index");
