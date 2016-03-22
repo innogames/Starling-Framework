@@ -47,7 +47,8 @@ package starling.core
     import starling.events.ResizeEvent;
     import starling.events.TouchPhase;
     import starling.events.TouchProcessor;
-    import starling.utils.HAlign;
+	import starling.textures.ConcreteTexture;
+	import starling.utils.HAlign;
     import starling.utils.SystemUtil;
     import starling.utils.VAlign;
     import starling.utils.execute;
@@ -624,7 +625,8 @@ package starling.core
          *  frame. (Except when <code>shareContext</code> is enabled: in that case, you have to
          *  call that method manually.) */
         public function start():void 
-        { 
+        {
+			ConcreteTexture.setIsRendererUsable(true);
             mStarted = mRendering = true;
             mLastFrameTimestamp = getTimer() / 1000.0;
         }
@@ -639,7 +641,8 @@ package starling.core
          *  activated background code execution.</p>
          */
         public function stop(suspendRendering:Boolean=false):void
-        { 
+        {
+			ConcreteTexture.setIsRendererUsable(!suspendRendering);
             mStarted = false;
             mRendering = !suspendRendering;
         }

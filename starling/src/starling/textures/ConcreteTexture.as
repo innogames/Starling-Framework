@@ -45,8 +45,10 @@ package starling.textures
         
         /** helper object */
         private static var sOrigin:Point = new Point();
-        
-        /** Creates a ConcreteTexture object from a TextureBase, storing information about size,
+
+		private static var _isRendererUsable: Boolean = true;
+
+		/** Creates a ConcreteTexture object from a TextureBase, storing information about size,
          *  mip-mapping, and if the channels contain premultiplied alpha values. */
         public function ConcreteTexture(base:TextureBase, format:String, width:int, height:int, 
                                         mipMapping:Boolean, premultipliedAlpha:Boolean,
@@ -89,7 +91,11 @@ package starling.textures
          *  cropped or filled up with transparent pixels */
         public function uploadBitmapData(data:BitmapData):void
         {
-            var potData:BitmapData;
+            if (!_isRendererUsable) {
+				return;
+			}
+
+			var potData:BitmapData;
             
             if (data.width != mWidth || data.height != mHeight)
             {
@@ -288,5 +294,9 @@ package starling.textures
         
         /** @inheritDoc */
         public override function get repeat():Boolean { return mRepeat; }
-    }
+
+		public static function setIsRendererUsable(value: Boolean): void {
+			_isRendererUsable = value;
+		}
+	}
 }
