@@ -626,7 +626,7 @@ package starling.core
          *  call that method manually.) */
         public function start():void 
         {
-			ConcreteTexture.setIsRendererUsable(true);
+			ConcreteTexture.isRendererUsable = true;
             mStarted = mRendering = true;
             mLastFrameTimestamp = getTimer() / 1000.0;
         }
@@ -642,7 +642,7 @@ package starling.core
          */
         public function stop(suspendRendering:Boolean=false):void
         {
-			ConcreteTexture.setIsRendererUsable(!suspendRendering);
+			ConcreteTexture.isRendererUsable = !suspendRendering;
             mStarted = false;
             mRendering = !suspendRendering;
         }

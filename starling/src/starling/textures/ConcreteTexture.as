@@ -295,7 +295,11 @@ package starling.textures
         /** @inheritDoc */
         public override function get repeat():Boolean { return mRepeat; }
 
-		public static function setIsRendererUsable(value: Boolean): void {
+		/**
+		 * Workaround for bug with Samsung devices, prevents updating textures while app is in background
+		 * https://bugbase.adobe.com/index.cfm?event=bug&id=4131337
+		 */
+		public static function set isRendererUsable(value: Boolean): void {
 			_isRendererUsable = value;
 		}
 	}
