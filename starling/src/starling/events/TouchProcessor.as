@@ -190,11 +190,16 @@ package starling.events
             for each (touch in touches)
                 touch.dispatchEvent(touchEvent);
         }
+
+        private const QUEUE_MAX_LENGTH:int = 8;
         
         /** Enqueues a new touch our mouse event with the given properties. */
         public function enqueue(touchID:int, phase:String, globalX:Number, globalY:Number,
                                 pressure:Number=1.0, width:Number=1.0, height:Number=1.0):void
         {
+            if(mQueue.length >= QUEUE_MAX_LENGTH)
+                return;
+
             mQueue.unshift(arguments);
             
             // multitouch simulation (only with mouse)
